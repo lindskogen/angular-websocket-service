@@ -6,7 +6,9 @@ var websocket = angular.module('websocket', []);
 
 websocket.
     factory('websocket', ['$rootScope', function($rootScope) {
-        var ws, make_message, parse_message, Service;
+        var ws, make_message, parse_message, dispatch, Service;
+
+        //Websocket setup
         ws = new window.WebSocket("ws://automation.azurestandard.com:9000");
 
         ws.onopen = function () {
@@ -21,10 +23,46 @@ websocket.
         ws.onmessage = function (msg) {
             var parsed;
             parsed = parse_message(msg.data);
-            //Call registered handlers then
+            dispatch.handle(parsed.topic, parsed.body)
             $rootScope.$apply();
         };
 
+
+        //dispatch
+        dispatch = {
+            listeners: {},
+            register: function (topic, func) {
+                var current;
+                topic = topic.toLowerCase();
+                current = this.listeners[topic] || [];
+                current.push(func);
+                this.listeners[topic] = _.unique(current, false, toString);
+            },
+            deRegister: function (topic, func) {
+                this.listeners['topic'] = _.reject(
+                    this.listeners['topic'], function (el) {
+                        return el.toString() === func.toString();
+                    });
+            },
+            handle: function (topic, body) {
+                var key, interested;
+                interested = [];
+                _.each(_.keys(this.listeners), 
+                       function (key) {
+                           if (key.indexOf(topic) === 0) {
+                               interested.push(this.listeners[key])
+                           }
+                       },
+                       this
+                      );
+                _.map(_.unique(_.flatten(interested), false, toString), function (item) {
+                    item(topic, _.extend(body));
+                });
+            }
+        }
+
+
+        // Utilities
         make_message = function (topic, body) {
             return topic + " " + JSON.stringify(body);
         };
@@ -37,6 +75,7 @@ websocket.
             return {"topic": topic, "body": body};
         };
 
+
         // We return this object to anything injecting our service
         Service = {
             emit: function (topic, body) {
@@ -44,10 +83,16 @@ websocket.
             },
 
             register: function (topic, func) {
+                dispatch.register(topic, func);
             },
 
-            make_message: make_message,
-            send: ws.send
+            make_message: function (topic, body) {
+                return make_message(topic, body);
+            },
+
+            send: function (msg) {
+                ws.send(msg);
+            }
         }
 
         return Service;
