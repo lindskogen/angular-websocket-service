@@ -2,50 +2,53 @@
 
 /* Services */
 
-// Demonstrate how to register services
-// In this case it is a simple value service.
-// angular.module('pickControl.services', [function () {
+var websocket = angular.module('websocket', []);
 
-// }]);
+websocket.
+    factory('websocket', ['$rootScope', function($rootScope) {
+        var ws, make_message, parse_message, Service;
+        ws = new window.WebSocket("ws://automation.azurestandard.com:9000");
 
-angular.module('pickControl.services', []).
-    factory('websocket', function() {
-        var websocket, make_message, parse_message, con;
+        ws.onopen = function () {
+            console.log("Socket has been opened");
+        }
+
+        ws.onerror = function (error) {
+            console.log("WebSocket Error " + error);
+        };
+
+        // Log messages from the server
+        ws.onmessage = function (msg) {
+            var parsed;
+            parsed = parse_message(msg.data);
+            //Call registered handlers then
+            $rootScope.$apply();
+        };
+
         make_message = function (topic, body) {
             return topic + " " + JSON.stringify(body);
-        }
+        };
+
         parse_message = function (msg) {
             var topic, body, parts;
             parts = msg.split(" ", 1);
             topic = parts[0];
             body = JSON.parse(msg.substring(topic.length + 1));
             return {"topic": topic, "body": body};
-        }
-        con = new window.WebSocket("ws://automation.azurestandard.com:9000/bin");
-        con.onerror = function (error) {
-            console.log("WebSocket Error " + error);
         };
 
-        // Log messages from the server
-        con.onmessage = function (msg) {
-            var parsed;
-            parsed = parse_message(msg.data);
-            //Call registered handlers then
-            $scope.$apply();
-        };
-
-        websocket = {
+        // We return this object to anything injecting our service
+        Service = {
             emit: function (topic, body) {
-                console.log(topic);
-                console.log(body);
+                this.send(make_message(topic,body));
             },
+
             register: function (topic, func) {
             },
-            send: function (msg) {
-            },
-            make_message: function (topic, body) {
-            },
+
+            make_message: make_message,
+            send: ws.send
         }
-        //factory function body that constructs websocket
-        return websocket;
-    });
+
+        return Service;
+    }]);
