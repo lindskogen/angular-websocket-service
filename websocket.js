@@ -30,6 +30,8 @@ websocket.
 
         //dispatch
         dispatch = {
+            //TODO underscore has handy functions to treat arrays as
+            //sets. Maybe clearer then this.
             listeners: {},
             register: function (topic, func) {
                 var current;
@@ -56,6 +58,7 @@ websocket.
                        this
                       );
                 _.map(_.unique(_.flatten(interested), false, toString), function (item) {
+                    console.log(topic);
                     item(topic, _.extend(body));
                 });
             }
