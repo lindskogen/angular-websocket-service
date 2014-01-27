@@ -58,7 +58,6 @@ websocket.
                        this
                       );
                 _.map(_.unique(_.flatten(interested), false, toString), function (item) {
-                    console.log(topic);
                     item(topic, _.extend(body));
                 });
             }
