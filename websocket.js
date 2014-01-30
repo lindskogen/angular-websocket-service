@@ -49,9 +49,9 @@ websocket.
             handle: function (topic, body) {
                 var key, interested;
                 interested = [];
-                _.each(_.keys(this.listeners), 
+                _.each(_.keys(this.listeners),
                        function (key) {
-                           if (key.indexOf(topic) === 0) {
+                           if (topic.indexOf(key) === 0) {
                                interested.push(this.listeners[key])
                            }
                        },
