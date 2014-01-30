@@ -57,9 +57,10 @@ websocket.
                        },
                        this
                       );
-                _.map(_.unique(_.flatten(interested), false, toString), function (item) {
-                    item(topic, _.extend(body));
-                });
+                _.map(_.unique(_.flatten(interested), false, toString),
+                      function (item) {
+                          item(topic, _.extend(body));
+                      });
             }
         }
 
