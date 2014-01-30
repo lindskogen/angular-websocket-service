@@ -6,13 +6,21 @@ var websocket = angular.module('websocket', []);
 
 websocket.
     factory('websocket', ['$rootScope', function($rootScope) {
-        var ws, make_message, parse_message, dispatch, Service;
+        var ws, make_message, parse_message, dispatch, Service, ready, queue;
+        ready = false;
+        queue = [];
 
         //Websocket setup
         ws = new window.WebSocket("ws://automation.azurestandard.com:9000");
 
         ws.onopen = function () {
             console.log("Socket has been opened");
+            ready = true;
+            if (!_.isEmpty(queue)) {
+                _.each(queue, function (item) {
+                    this.send(item);
+                }, ws);
+            }
         }
 
         ws.onerror = function (error) {
@@ -94,7 +102,11 @@ websocket.
             },
 
             send: function (msg) {
-                ws.send(msg);
+                if (ready) {
+                    ws.send(msg);
+                } else {
+                    queue.push(msg);
+                }
             }
         }
 
