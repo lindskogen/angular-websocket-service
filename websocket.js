@@ -24,7 +24,8 @@ websocket.
         }
 
         ws.onerror = function (error) {
-            console.log("WebSocket Error " + error);
+            console.log("WebSocket Error ");
+            console.log(error);
         };
 
         // Log messages from the server
