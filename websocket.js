@@ -1,6 +1,9 @@
 'use strict';
 
-/* A WebSocket service for AngularJS
+/* Copyright 2014 Azure Standard https://www.azurestandard.com/
+ * Released under the MIT license (http://opensource.org/licenses/MIT).
+ *
+ * A WebSocket service for AngularJS
  *
  * Send and receive messages consisting of a topic string (without
  * spaces) followed by a space and a JSON payload.  For example:
