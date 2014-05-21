@@ -129,6 +129,13 @@ websocket.
             return {"topic": topic, "body": body};
         };
 
+        var send = function (msg) {
+            if (ready) {
+                ws.send(msg);
+            } else {
+                queue.push(msg);
+            }
+        };
 
         // We return this object to anything injecting our service
         Service = {
@@ -139,18 +146,6 @@ websocket.
             register: function (topic, func) {
                 dispatch.register(topic, func);
             },
-
-            make_message: function (topic, body) {
-                return make_message(topic, body);
-            },
-
-            send: function (msg) {
-                if (ready) {
-                    ws.send(msg);
-                } else {
-                    queue.push(msg);
-                }
-            }
         }
 
         return Service;
