@@ -31,7 +31,7 @@ websocket.
             var parsed;
             parsed = parse_message(msg.data);
             //This is a 'service' level message, which all service
-            //consumers should listen to, and react be reloading.
+            //consumers should listen to, and react by reloading.
             if (parsed.topic == '/refresh') {
                 window.location.reload();
             }
