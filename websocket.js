@@ -1,7 +1,5 @@
 'use strict';
 
-/* Services */
-
 var websocket = angular.module('websocket', []);
 
 websocket.
