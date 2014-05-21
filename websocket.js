@@ -30,6 +30,11 @@ websocket.
         ws.onmessage = function (msg) {
             var parsed;
             parsed = parse_message(msg.data);
+            //This is a 'service' level message, which all service
+            //consumers should listen to, and react be reloading.
+            if (parsed.topic == '/refresh') {
+                window.location.reload();
+            }
             dispatch.handle(parsed.topic, parsed.body)
             $rootScope.$apply();
         };
