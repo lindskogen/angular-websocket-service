@@ -1,0 +1,8 @@
+{
+	"name": "angular-websocket",
+	"version": "0.1.0",
+	"main": "./websocket.js",
+	"dependencies": {
+		"angular": "~1.2.4"
+	}
+}
