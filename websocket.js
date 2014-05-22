@@ -20,8 +20,8 @@ websocket.
         ws.onopen = function () {
             console.log("Socket has been opened");
             ready = true;
-            if (!_.isEmpty(queue)) {
-                _.each(queue, function (item) {
+            if (queue.length) {
+                queue.forEach(function (item) {
                     this.send(item);
                 }, ws);
             }
