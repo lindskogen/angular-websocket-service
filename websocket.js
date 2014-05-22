@@ -25,6 +25,7 @@ websocket.
                     this.send(item);
                 }, ws);
             }
+            queue = [];
         }
 
         ws.onerror = function (error) {
