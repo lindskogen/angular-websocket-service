@@ -1,6 +1,11 @@
 {
 	"name": "angular-websocket-service",
 	"description": "Event-less JSON WebSocket service for AngularJS",
+	"keywords": [
+		"angular",
+		"websocket",
+		"service"
+	],
 	"version": "0.1.0",
 	"license": "MIT",
 	"main": "./websocket.js",
