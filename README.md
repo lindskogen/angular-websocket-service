@@ -5,9 +5,20 @@ payload.  For example:
 
     /state/put {"name": "Alice", "friends": ["Bob", "Charlie"]}
 
-The user-facing API is just `emit` (to send outgoing messages) and
-`register` (to add a callback for incoming messages).  See
-`example.html` for a working example.
+The user-facing API is:
+
+* `$websocket.connect(endpoint)` to return a new wrapped WebSocket
+  object connected to the WebSocket server at `endpoint`.
+
+Wrapped WebSocket instances have the following user-facing API:
+
+* `emit(topic, body)` to send outgoing messages.  Messages send before
+  the WebSocket connects are queued until the connection completes.
+* `register(topic, callback)` to add a callback for incoming messages.
+  The callback fingerprint should be `callback(topic, body)`.  The
+  callback is triggered for messages who's topic starts with the
+  registered topic.  For example, callbacks registered for `/state`
+  and `/state/get` will both be invoked for a `/state/get` message.
 
 Similar packages
 ================

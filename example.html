@@ -22,26 +22,26 @@
 			angular.module('WebsocketApp', ['websocket'])
 				.controller(
 					'WebsocketCtrl',
-					['$scope', 'websocket',
-					 function ($scope, websocket) {
-						 $scope.name = "Alice";
-						 $scope.friends = [];
+					['$scope', '$websocket',
+					function ($scope, $websocket) {
+						$scope.name = "Alice";
+						$scope.friends = [];
+						var websocket = $websocket.connect('ws://echo.websocket.org');
 
-						 // if we hear about a new friend, add them to our list
-						 websocket.register('/new/friend', function(topic, body) {
-								 $scope.friends.push(body.name);
-							 });
+						// if we hear about a new friend, add them to our list
+						websocket.register('/new/friend', function(topic, body) {
+								$scope.friends.push(body.name);
+							});
 
-						 // if we hear a state dump, clobber our local state
-						 websocket.register('/state/put', function(topic, body) {
-								 $scope.name = body.name;
-								 $scope.friends = body.friends;
-							 });
+						// if we hear a state dump, clobber our local state
+						websocket.register('/state/put', function(topic, body) {
+								$scope.name = body.name;
+								$scope.friends = body.friends;
+							});
 
-						 // request a /state/put message
-						 websocket.emit('/state/get', {});
-					 }
-					]);
+						// request a /state/put message
+						websocket.emit('/state/get', {});
+					}]);
 		</script>
 	</body>
 </html>

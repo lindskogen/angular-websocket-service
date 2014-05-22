@@ -6,13 +6,9 @@
  * A WebSocket service for AngularJS
  */
 
-var websocket = angular.module('websocket', []);
-
-websocket.
-    factory('websocket', ['$rootScope', function($rootScope) {
-        var ready = false;
-        var queue = [];
-
+var websocketModule = angular
+    .module('websocket', [])
+    .factory('$websocket', ['$rootScope', function($rootScope) {
         var make_message = function (topic, body) {
             return topic + " " + JSON.stringify(body);
         };
@@ -25,35 +21,32 @@ websocket.
             return {"topic": topic, "body": body};
         };
 
-        //Websocket setup
-        var ws = new window.WebSocket("ws://automation.azurestandard.com:9000");
-
-        var send = function (msg) {
-            if (ready) {
-                ws.send(msg);
+        var send = function (wrapped_websocket, msg) {
+            if (wrapped_websocket.ready) {
+                wrapped_websocket.websocket.send(msg);
             } else {
-                queue.push(msg);
+                wrapped_websocket.queue.push(msg);
             }
         };
 
-        ws.onopen = function () {
-            console.log("Socket has been opened");
-            ready = true;
-            if (queue.length) {
-                queue.forEach(function (item) {
-                    this.send(item);
-                }, ws);
+        var onopen = function (wrapped_websocket) {
+            console.log('opened socket to ' + wrapped_websocket.endpoint);
+            wrapped_websocket.ready = true;
+            if (wrapped_websocket.queue.length) {
+                wrapped_websocket.queue.forEach(function (item) {
+                    send(wrapped_websocket, item);
+                });
             }
-            queue = [];
-        }
-
-        ws.onerror = function (error) {
-            console.log("WebSocket Error ");
-            console.log(error);
+            wrapped_websocket.queue = [];
         };
 
-        // Log messages from the server
-        ws.onmessage = function (msg) {
+        var onerror = function (wrapped_websocket, error) {
+            console.log(
+                'socket error (' + wrapped_websocket.endpoint + '): ' +
+                error);
+        };
+
+        var onmessage = function(wrapped_websocket, msg) {
             var parsed;
             parsed = parse_message(msg.data);
             //This is a 'service' level message, which all service
@@ -61,48 +54,62 @@ websocket.
             if (parsed.topic == '/refresh') {
                 window.location.reload();
             }
-            dispatch.handle(parsed.topic, parsed.body)
+            handle(wrapped_websocket, parsed.topic, parsed.body)
             $rootScope.$apply();
         };
 
-        var dispatch = {
-            listeners: {},
-            register: function (topic, func) {
-                var current;
-                topic = topic.toLowerCase();
-                current = this.listeners[topic] || [];
-                if (current.indexOf(func) == -1) {
-                    current.push(func);
-                }
-            },
-            handle: function (topic, body) {
-                var key, interested;
-                interested = [];
-                Object.keys(this.listeners).forEach(
-                    function (key) {
-                        if (topic.indexOf(key) === 0 &&
-                                interested.indexOf(this.listeners[key]) == -1) {
-                            interested.push(this.listeners[key])
-                        }
-                    },
-                    this
-                );
-                interested.forEach(function (item) {
-                    item(topic, body);
-                });
+        var register = function(wrapped_websocket, topic, callback) {
+            topic = topic.toLowerCase();
+            var current = wrapped_websocket.listeners[topic] || [];
+            if (current.indexOf(callback) == -1) {
+                current.push(callback);
             }
-        }
+        };
 
-        // We return this object to anything injecting our service
-        var service = {
-            emit: function (topic, body) {
-                this.send(make_message(topic,body));
+        var handle = function (wrapped_websocket, topic, body) {
+            var interested = [];
+            Object.keys(wrapped_websocket.listeners).forEach(function (key) {
+                if (topic.indexOf(key) === 0 &&
+                        interested.indexOf(wrapped_websocket.listeners[key]) == -1) {
+                    wrapped_websocket.listeners[key](topic, body);
+                    interested.push(wrapped_websocket.listeners[key]);
+                }
+            });
+        };
+
+        return {
+            connect: function (endpoint) {
+                var wrapped_websocket = {
+                    endpoint: endpoint,
+                    websocket: null,
+                    ready: false,
+                    queue: [],
+                    listeners: {},
+
+                    emit: function(topic, body) {
+                        send(this, make_message(topic,body));
+                    },
+
+                    register: function (topic, callback) {
+                        register(this, topic, callback);
+                    },
+                };
+                console.log('connect');
+                wrapped_websocket.websocket = new window.WebSocket(endpoint);
+
+                wrapped_websocket.websocket.onopen = function () {
+                    return onopen(wrapped_websocket);
+                };
+
+                wrapped_websocket.websocket.onerror = function (error) {
+                    return onerror(wrapped_websocket, error);
+                };
+
+                wrapped_websocket.websocket.onmessage = function (msg) {
+                    return onmessage(wrapped_websocket, msg);
+                };
+
+                return wrapped_websocket;
             },
-
-            register: function (topic, func) {
-                dispatch.register(topic, func);
-            },
-        }
-
-        return service;
+        };
     }]);
