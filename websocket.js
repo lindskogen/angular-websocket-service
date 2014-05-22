@@ -10,12 +10,31 @@ var websocket = angular.module('websocket', []);
 
 websocket.
     factory('websocket', ['$rootScope', function($rootScope) {
-        var ws, make_message, parse_message, dispatch, Service, ready, queue;
-        ready = false;
-        queue = [];
+        var ready = false;
+        var queue = [];
+
+        var make_message = function (topic, body) {
+            return topic + " " + JSON.stringify(body);
+        };
+
+        var parse_message = function (msg) {
+            var topic, body, parts;
+            parts = msg.split(" ", 1);
+            topic = parts[0];
+            body = JSON.parse(msg.substring(topic.length + 1));
+            return {"topic": topic, "body": body};
+        };
 
         //Websocket setup
-        ws = new window.WebSocket("ws://automation.azurestandard.com:9000");
+        var ws = new window.WebSocket("ws://automation.azurestandard.com:9000");
+
+        var send = function (msg) {
+            if (ready) {
+                ws.send(msg);
+            } else {
+                queue.push(msg);
+            }
+        };
 
         ws.onopen = function () {
             console.log("Socket has been opened");
@@ -46,7 +65,7 @@ websocket.
             $rootScope.$apply();
         };
 
-        dispatch = {
+        var dispatch = {
             listeners: {},
             register: function (topic, func) {
                 var current;
@@ -79,29 +98,8 @@ websocket.
             }
         }
 
-        // Utilities
-        make_message = function (topic, body) {
-            return topic + " " + JSON.stringify(body);
-        };
-
-        parse_message = function (msg) {
-            var topic, body, parts;
-            parts = msg.split(" ", 1);
-            topic = parts[0];
-            body = JSON.parse(msg.substring(topic.length + 1));
-            return {"topic": topic, "body": body};
-        };
-
-        var send = function (msg) {
-            if (ready) {
-                ws.send(msg);
-            } else {
-                queue.push(msg);
-            }
-        };
-
         // We return this object to anything injecting our service
-        Service = {
+        var service = {
             emit: function (topic, body) {
                 this.send(make_message(topic,body));
             },
@@ -111,5 +109,5 @@ websocket.
             },
         }
 
-        return Service;
+        return service;
     }]);
