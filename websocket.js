@@ -80,16 +80,16 @@ websocket.
                 interested = [];
                 Object.keys(this.listeners).forEach(
                     function (key) {
-                        if (topic.indexOf(key) === 0) {
+                        if (topic.indexOf(key) === 0 &&
+                                interested.indexOf(this.listeners[key]) == -1) {
                             interested.push(this.listeners[key])
                         }
                     },
                     this
                 );
-                _.map(_.unique(_.flatten(interested), false, toString),
-                      function (item) {
-                          item(topic, _.extend(body));
-                      });
+                interested.forEach(function (item) {
+                    item(topic, _.extend(body));
+                });
             }
         }
 
