@@ -75,12 +75,6 @@ websocket.
                     current.push(func);
                 }
             },
-            deRegister: function (topic, func) {
-                this.listeners['topic'] = _.reject(
-                    this.listeners['topic'], function (el) {
-                        return el.toString() === func.toString();
-                    });
-            },
             handle: function (topic, body) {
                 var key, interested;
                 interested = [];
