@@ -1,8 +1,15 @@
 {
 	"name": "angular-websocket-service",
+	"description": "Event-less JSON WebSocket service for AngularJS",
 	"version": "0.1.0",
+	"license": "MIT",
 	"main": "./websocket.js",
+	"homepage": "https://github.com/azurestandard/angular-websocket-service",
 	"dependencies": {
 		"angular": "~1.2.4"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git://github.com/azurestandard/angular-websocket-service.git"
 	}
 }
