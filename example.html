@@ -22,9 +22,9 @@
 			angular.module('WebsocketApp', ['websocket'])
 				.controller(
 					'WebsocketCtrl',
-					['$scope', '$websocket',
-					function ($scope, $websocket) {
-						$scope.name = "Alice";
+					['$scope', '$timeout', '$websocket',
+					function ($scope, $timeout, $websocket) {
+						$scope.name = 'Alice';
 						$scope.friends = [];
 						var websocket = $websocket.connect('ws://echo.websocket.org');
 
@@ -38,6 +38,25 @@
 								$scope.name = body.name;
 								$scope.friends = body.friends;
 							});
+
+						// fake a websocket server responding to /state/get
+						websocket.register('/state/get', function(topic, body) {
+							websocket.emit('/state/put', {
+								name: 'Bob',
+								friends: ['Alice', 'Charlie'],
+							});
+						});
+
+						// fake a websocket server pushing /new/friend
+						var delay = 0;
+						['Dave', 'Eve', 'Frank'].forEach(function (friend) {
+							delay += 1000;
+							$timeout(function () {
+									websocket.emit('/new/friend', {name: friend});
+								},
+								delay,
+								false);
+						});
 
 						// request a /state/put message
 						websocket.emit('/state/get', {});
