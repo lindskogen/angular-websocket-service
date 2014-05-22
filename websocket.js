@@ -60,9 +60,11 @@ var websocketModule = angular
 
         var register = function(wrapped_websocket, topic, callback) {
             topic = topic.toLowerCase();
-            var current = wrapped_websocket.listeners[topic] || [];
-            if (current.indexOf(callback) == -1) {
-                current.push(callback);
+            if (!wrapped_websocket.listeners[topic]) {
+                wrapped_websocket.listeners[topic] = [];
+            }
+            if (wrapped_websocket.listeners[topic].indexOf(callback) == -1) {
+                wrapped_websocket.listeners[topic].push(callback);
             }
         };
 
