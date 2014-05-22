@@ -71,8 +71,9 @@ websocket.
                 var current;
                 topic = topic.toLowerCase();
                 current = this.listeners[topic] || [];
-                current.push(func);
-                this.listeners[topic] = _.unique(current, false, toString);
+                if (current.indexOf(func) == -1) {
+                    current.push(func);
+                }
             },
             deRegister: function (topic, func) {
                 this.listeners['topic'] = _.reject(
