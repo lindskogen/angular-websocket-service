@@ -46,11 +46,7 @@ websocket.
             $rootScope.$apply();
         };
 
-
-        //dispatch
         dispatch = {
-            //TODO underscore has handy functions to treat arrays as
-            //sets. Maybe clearer then this.
             listeners: {},
             register: function (topic, func) {
                 var current;
@@ -82,7 +78,6 @@ websocket.
                       });
             }
         }
-
 
         // Utilities
         make_message = function (topic, body) {
