@@ -71,10 +71,13 @@ var websocketModule = angular
         var handle = function (wrapped_websocket, topic, body) {
             var interested = [];
             Object.keys(wrapped_websocket.listeners).forEach(function (key) {
-                if (topic.indexOf(key) === 0 &&
-                        interested.indexOf(wrapped_websocket.listeners[key]) == -1) {
-                    wrapped_websocket.listeners[key](topic, body);
-                    interested.push(wrapped_websocket.listeners[key]);
+                if (topic.indexOf(key) === 0) {
+                    wrapped_websocket.listeners[key].forEach(function (callback) {
+                        if (interested.indexOf(callback) == -1) {
+                            callback(topic, body);
+                            interested.push(callback);
+                        }
+                    });
                 }
             });
         };
