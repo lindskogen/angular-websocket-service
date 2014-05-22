@@ -88,7 +88,7 @@ websocket.
                     this
                 );
                 interested.forEach(function (item) {
-                    item(topic, _.extend(body));
+                    item(topic, body);
                 });
             }
         }
