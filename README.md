@@ -6,31 +6,8 @@ payload.  For example:
     /state/put {"name": "Alice", "friends": ["Bob", "Charlie"]}
 
 The user-facing API is just `emit` (to send outgoing messages) and
-`register` (to add a callback for incoming messages).  For example:
-
-    angular.module('myModule.controllers', []).
-      controller(
-        'MyCtrl',
-        ['$scope', 'websocket',
-         function ($scope, websocket) {
-           $scope.name = "Alice";
-           $scope.friends = [];
-
-           // if we hear about a new friend, add them to our list
-           websocket.register('/new/friend', function(topic, body) {
-               $scope.friends.push(body.name);
-             });
-
-           // if we hear a state dump, clobber our local state
-           websocket.register('/state/put', function(topic, body) {
-               $scope.name = body.name;
-               $scope.friends = body.friends;
-             });
-
-           // request a /state/put message
-           websocket.emit('/state/get, {});
-         }
-        ]);
+`register` (to add a callback for incoming messages).  See
+`example.html` for a working example.
 
 Similar packages
 ================
