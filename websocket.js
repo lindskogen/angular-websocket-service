@@ -30,7 +30,7 @@ var websocketModule = angular
         };
 
         var onopen = function (wrapped_websocket) {
-            console.log('opened socket to ' + wrapped_websocket.endpoint);
+            console.log('opened socket', wrapped_websocket.endpoint);
             wrapped_websocket.ready = true;
             if (wrapped_websocket.queue.length) {
                 wrapped_websocket.queue.forEach(function (item) {
@@ -41,9 +41,7 @@ var websocketModule = angular
         };
 
         var onerror = function (wrapped_websocket, error) {
-            console.log(
-                'socket error (' + wrapped_websocket.endpoint + '): ' +
-                error);
+            console.log('socket error', wrapped_websocket.endpoint, error);
         };
 
         var onmessage = function(wrapped_websocket, msg) {
@@ -99,7 +97,7 @@ var websocketModule = angular
                         register(this, topic, callback);
                     },
                 };
-                console.log('connect');
+                console.log('connect to', endpoint);
                 wrapped_websocket.websocket = new window.WebSocket(endpoint);
 
                 wrapped_websocket.websocket.onopen = function () {
