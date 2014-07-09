@@ -47,6 +47,16 @@
 							});
 						});
 
+						// log all /state messages (for testing 'exact')
+						websocket.register('/state', function(topic, body) {
+								console.log('/state (prefix)', topic, body);
+							});
+
+						// log all /state messages (for testing 'exact')
+						websocket.register('/state', function(topic, body) {
+								console.log('/state (exact)', topic, body);
+							}, {exact: true});
+
 						// fake a websocket server pushing /new/friend
 						var delay = 0;
 						['Dave', 'Eve', 'Frank'].forEach(function (friend) {
@@ -60,6 +70,9 @@
 
 						// request a /state/put message
 						websocket.emit('/state/get', {});
+
+						// fake a websocket server pushing to /state
+						websocket.emit('/state', {event: "testing 'exact'"});
 					}]);
 		</script>
 	</body>

@@ -56,13 +56,22 @@ var websocketModule = angular
             $rootScope.$apply();
         };
 
-        var register = function(wrapped_websocket, topic, callback) {
+        var register = function(wrapped_websocket, topic, callback, options) {
+            if (!options) {
+                options = {};
+            }
+            if (!('exact' in options)) {
+                options.exact = false;
+            }
             topic = topic.toLowerCase();
             if (!wrapped_websocket.listeners[topic]) {
                 wrapped_websocket.listeners[topic] = [];
             }
             if (wrapped_websocket.listeners[topic].indexOf(callback) == -1) {
-                wrapped_websocket.listeners[topic].push(callback);
+                wrapped_websocket.listeners[topic].push({
+                    callback: callback,
+                    options: options
+                });
             }
         };
 
@@ -70,10 +79,13 @@ var websocketModule = angular
             var interested = [];
             Object.keys(wrapped_websocket.listeners).forEach(function (key) {
                 if (topic.indexOf(key) === 0) {
-                    wrapped_websocket.listeners[key].forEach(function (callback) {
-                        if (interested.indexOf(callback) == -1) {
-                            callback(topic, body);
-                            interested.push(callback);
+                    wrapped_websocket.listeners[key].forEach(function (listener) {
+                        if (listener.options.exact && key != topic) {
+                            return;
+                        }
+                        if (interested.indexOf(listener.callback) == -1) {
+                            listener.callback(topic, body);
+                            interested.push(listener.callback);
                         }
                     });
                 }
@@ -93,8 +105,8 @@ var websocketModule = angular
                         send(this, make_message(topic,body));
                     },
 
-                    register: function (topic, callback) {
-                        register(this, topic, callback);
+                    register: function (topic, callback, options) {
+                        register(this, topic, callback, options);
                     },
                 };
                 console.log('connect to', endpoint);

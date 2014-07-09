@@ -14,11 +14,16 @@ Wrapped WebSocket instances have the following user-facing API:
 
 * `emit(topic, body)` to send outgoing messages.  Messages send before
   the WebSocket connects are queued until the connection completes.
-* `register(topic, callback)` to add a callback for incoming messages.
-  The callback fingerprint should be `callback(topic, body)`.  The
-  callback is triggered for messages who's topic starts with the
-  registered topic.  For example, callbacks registered for `/state`
-  and `/state/get` will both be invoked for a `/state/get` message.
+* `register(topic, callback[, options])` to add a callback for
+  incoming messages.  The callback fingerprint should be
+  `callback(topic, body)`.  The callback is triggered for messages
+  who's topic starts with the registered topic.  For example,
+  callbacks registered for `/state` and `/state/get` will both be
+  invoked for a `/state/get` message.  You can optionally pass in an
+  `options` object to configure the registration.  For example, if you
+  *do* want an exact topic match (instead of a prefix match), use
+  `{exact: true}` (a callback registered for `/state` will `exact` set
+  to true will not be invoked for a `/state/get` message).
 
 Similar packages
 ================
