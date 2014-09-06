@@ -16,7 +16,7 @@ var websocketModule = angular
         var parse_message = function (msg) {
             var topic, body, parts;
             parts = msg.split(" ", 1);
-            topic = parts[0].toLowerCase();
+            topic = parts[0];
             body = JSON.parse(msg.substring(topic.length + 1));
             return {"topic": topic, "body": body};
         };
@@ -63,7 +63,6 @@ var websocketModule = angular
             if (!('exact' in options)) {
                 options.exact = false;
             }
-            topic = topic.toLowerCase();
             if (!wrapped_websocket.listeners[topic]) {
                 wrapped_websocket.listeners[topic] = [];
             }
